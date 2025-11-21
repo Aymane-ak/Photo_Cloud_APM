@@ -1,0 +1,30 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.zip
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+
+# Terraform / OpenTofu
+*.tfstate
+*.tfstate.backup
+.terraform/
+.tofu/
+*.lock.hcl
+*.plan
+
+# LocalStack / Docker
+.localstack/
+docker-compose.override.yml
+localstack/data/
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
