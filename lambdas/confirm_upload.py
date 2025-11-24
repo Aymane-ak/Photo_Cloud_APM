@@ -23,9 +23,15 @@ def lambda_handler(event, context):
     if not image_id:
         return {"statusCode": 400, "body": json.dumps({"error": "image_id required"})}
     
+    # Vérifier que l'utilisateur est propriétaire de l'image
+    response = table.get_item(Key={"imageId": image_id})
+    item = response.get("Item")
+    if not item or item["userId"] != payload["userId"]:
+        return {"statusCode": 403, "body": json.dumps({"error": "Forbidden"})}
+    
     # Mettre à jour le status en 'uploaded'
     table.update_item(
-        Key={"image_id": image_id},
+        Key={"imageId": image_id},
         UpdateExpression="SET #s = :s",
         ExpressionAttributeNames={"#s": "status"},
         ExpressionAttributeValues={":s": "uploaded"}

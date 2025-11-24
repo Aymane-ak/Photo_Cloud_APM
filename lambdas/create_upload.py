@@ -28,22 +28,20 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": json.dumps({"error": "Filename required"})}
     
     image_id = str(uuid.uuid4())
-    key = f"{payload['username']}/{image_id}_{filename}"
+    key = f"{payload['userId']}/{image_id}_{filename}"
     
-    # URL pré-signé S3
     url = s3.generate_presigned_url(
         'put_object',
         Params={'Bucket': bucket_name, 'Key': key},
         ExpiresIn=3600
     )
     
-    # Stocker en attente confirmation
     table.put_item(Item={
-        "image_id": image_id,
-        "username": payload["username"],
+        "imageId": image_id,
+        "userId": payload["userId"],
         "key": key,
         "status": "pending",
         "uploaded_at": str(datetime.utcnow())
     })
     
-    return {"statusCode": 200, "body": json.dumps({"upload_url": url, "image_id": image_id})}
+    return {"statusCode": 200, "body": json.dumps({"upload_url": url, "imageId": image_id})}

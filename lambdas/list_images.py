@@ -2,6 +2,7 @@ import json
 import boto3
 import os
 import jwt
+from boto3.dynamodb.conditions import Key
 
 SECRET_KEY = os.getenv('JWT_SECRET', 'supersecretkey')
 dynamodb = boto3.resource('dynamodb', endpoint_url=os.getenv('DYNAMODB_ENDPOINT'))
@@ -18,12 +19,11 @@ def lambda_handler(event, context):
     except jwt.InvalidTokenError:
         return {"statusCode": 401, "body": json.dumps({"error": "Invalid token"})}
     
-    username = payload["username"]
+    user_id = payload["userId"]
     
-    # Récupérer toutes les images de l'utilisateur
     response = table.query(
-        IndexName="username-index",
-        KeyConditionExpression=boto3.dynamodb.conditions.Key("username").eq(username)
+        IndexName="userIdIndex",
+        KeyConditionExpression=Key("userId").eq(user_id)
     )
     images = response.get("Items", [])
     
