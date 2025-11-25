@@ -2,6 +2,7 @@ import json
 import boto3
 import os
 import jwt
+from boto3.dynamodb.conditions import Key
 
 SECRET_KEY = os.getenv("JWT_SECRET", "supersecretkey")
 dynamodb = boto3.resource("dynamodb", endpoint_url=os.getenv("DYNAMODB_ENDPOINT"))
@@ -18,25 +19,24 @@ def lambda_handler(event, context):
     except jwt.InvalidTokenError:
         return {"statusCode": 401, "body": json.dumps({"error": "Invalid token"})}
 
-    username = payload["username"]
+    user_id = payload["userId"]
     is_superadmin = payload.get("role") == "superadmin"
     
     image_id = event.get("pathParameters", {}).get("image_id")
     if not image_id:
         return {"statusCode": 400, "body": json.dumps({"error": "image_id required"})}
 
-    response = images_table.get_item(Key={"image_id": image_id})
+    response = images_table.get_item(Key={"imageId": image_id})
     item = response.get("Item")
     if not item:
         return {"statusCode": 404, "body": json.dumps({"error": "Image not found"})}
     
-    if item["username"] != username and not is_superadmin:
+    if item["userId"] != user_id and not is_superadmin:
         return {"statusCode": 403, "body": json.dumps({"error": "Forbidden"})}
 
-    # Déterminer l'action : PATCH pour modification, DELETE pour suppression
     method = event.get("requestContext", {}).get("http", {}).get("method")
     if method == "DELETE":
-        images_table.delete_item(Key={"image_id": image_id})
+        images_table.delete_item(Key={"imageId": image_id})
         return {"statusCode": 200, "body": json.dumps({"message": "Image deleted"})}
 
     if method == "PATCH":
@@ -50,7 +50,7 @@ def lambda_handler(event, context):
             expr_attr_names[f"#{k}"] = k
         if update_expr:
             images_table.update_item(
-                Key={"image_id": image_id},
+                Key={"imageId": image_id},
                 UpdateExpression="SET " + ", ".join(update_expr),
                 ExpressionAttributeNames=expr_attr_names,
                 ExpressionAttributeValues=expr_attr_values

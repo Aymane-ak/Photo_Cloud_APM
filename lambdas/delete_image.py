@@ -2,8 +2,6 @@ import json
 import boto3
 import os
 import jwt
-import uuid
-from datetime import datetime
 
 SECRET_KEY = os.getenv('JWT_SECRET', 'supersecretkey')
 s3 = boto3.client('s3', endpoint_url=os.getenv('S3_ENDPOINT'))
@@ -21,27 +19,21 @@ def lambda_handler(event, context):
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
     except jwt.InvalidTokenError:
         return {"statusCode": 401, "body": json.dumps({"error": "Invalid token"})}
-    
+
     body = json.loads(event.get("body", "{}"))
-    filename = body.get("filename")
-    if not filename:
-        return {"statusCode": 400, "body": json.dumps({"error": "Filename required"})}
-    
-    image_id = str(uuid.uuid4())
-    key = f"{payload['userId']}/{image_id}_{filename}"
-    
-    url = s3.generate_presigned_url(
-        'put_object',
-        Params={'Bucket': bucket_name, 'Key': key},
-        ExpiresIn=3600
-    )
-    
-    table.put_item(Item={
-        "imageId": image_id,
-        "userId": payload["userId"],
-        "key": key,
-        "status": "pending",
-        "uploaded_at": str(datetime.utcnow())
-    })
-    
-    return {"statusCode": 200, "body": json.dumps({"upload_url": url, "imageId": image_id})}
+    image_id = body.get("image_id")
+    if not image_id:
+        return {"statusCode": 400, "body": json.dumps({"error": "image_id required"})}
+
+    response = table.get_item(Key={"imageId": image_id})
+    item = response.get("Item")
+    if not item or item["userId"] != payload["userId"]:
+        return {"statusCode": 403, "body": json.dumps({"error": "Forbidden"})}
+
+    # Supprimer de S3
+    s3.delete_object(Bucket=bucket_name, Key=item["key"])
+
+    # Supprimer de DynamoDB
+    table.delete_item(Key={"imageId": image_id})
+
+    return {"statusCode": 200, "body": json.dumps({"message": "Image deleted"})}

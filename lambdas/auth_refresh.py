@@ -20,7 +20,8 @@ def lambda_handler(event, context):
     
     # Générer un nouveau token
     new_payload = {
-        "username": payload["username"],
+        "userId": payload["userId"],
+        "email": payload["email"],
         "role": payload.get("role", "user"),
         "exp": datetime.utcnow() + timedelta(hours=1)
     }

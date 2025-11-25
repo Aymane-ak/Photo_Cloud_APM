@@ -28,3 +28,5 @@ localstack/data/
 .idea/
 .DS_Store
 Thumbs.db
+
+lambdas/auth_login_package/

@@ -20,23 +20,21 @@ def lambda_handler(event, context):
     except jwt.InvalidTokenError:
         return {"statusCode": 401, "body": json.dumps({"error": "Invalid token"})}
 
-    username = payload["username"]
+    user_id = payload["userId"]
     is_superadmin = payload.get("role") == "superadmin"
     
     image_id = event.get("pathParameters", {}).get("image_id")
     if not image_id:
         return {"statusCode": 400, "body": json.dumps({"error": "image_id required"})}
     
-    # Vérifier que l'utilisateur peut accéder à l'image
-    response = images_table.get_item(Key={"image_id": image_id})
+    response = images_table.get_item(Key={"imageId": image_id})
     item = response.get("Item")
     if not item:
         return {"statusCode": 404, "body": json.dumps({"error": "Image not found"})}
     
-    if item["username"] != username and not is_superadmin:
+    if item["userId"] != user_id and not is_superadmin:
         return {"statusCode": 403, "body": json.dumps({"error": "Forbidden"})}
 
-    # Générer URL pré-signée pour le download
     key = item["key"]
     url = s3.generate_presigned_url(
         "get_object",
