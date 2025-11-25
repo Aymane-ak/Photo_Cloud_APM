@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     user_id = payload["userId"]
     
     response = table.query(
-        IndexName="userIdIndex",
+        IndexName="userId-index",
         KeyConditionExpression=Key("userId").eq(user_id)
     )
     images = response.get("Items", [])
