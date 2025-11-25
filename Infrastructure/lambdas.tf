@@ -17,7 +17,7 @@ resource "aws_lambda_function" "auth_signup" {
   environment {
     variables = {
       USERS_TABLE       = aws_dynamodb_table.users.name
-      DYNAMODB_ENDPOINT = "http://localhost:4566"
+      DYNAMODB_ENDPOINT = "http://localstack:4566"
       JWT_SECRET        = "supersecretkey"
     }
   }
@@ -38,7 +38,7 @@ resource "aws_lambda_function" "auth_login" {
   environment {
     variables = {
       USERS_TABLE       = aws_dynamodb_table.users.name
-      DYNAMODB_ENDPOINT = "http://localhost:4566"
+      DYNAMODB_ENDPOINT = "http://localstack:4566"
       JWT_SECRET        = "supersecretkey"
     }
   }
@@ -79,7 +79,7 @@ resource "aws_lambda_function" "auth_refresh" {
     variables = {
       JWT_SECRET        = "supersecretkey"
       USERS_TABLE       = aws_dynamodb_table.users.name
-      DYNAMODB_ENDPOINT = "http://localhost:4566"
+      DYNAMODB_ENDPOINT = "http://localstack:4566"
     }
   }
 }
@@ -99,9 +99,9 @@ resource "aws_lambda_function" "create_upload" {
   environment {
     variables = {
       IMAGES_TABLE      = aws_dynamodb_table.images.name
-      DYNAMODB_ENDPOINT = "http://localhost:4566"
+      DYNAMODB_ENDPOINT = "http://localstack:4566"
       S3_BUCKET         = aws_s3_bucket.raw_images.bucket
-      S3_ENDPOINT       = "http://localhost:4566"
+      S3_ENDPOINT       = "http://localstack:4566"
       JWT_SECRET        = "supersecretkey"
     }
   }
@@ -122,7 +122,7 @@ resource "aws_lambda_function" "confirm_upload" {
   environment {
     variables = {
       IMAGES_TABLE      = aws_dynamodb_table.images.name
-      DYNAMODB_ENDPOINT = "http://localhost:4566"
+      DYNAMODB_ENDPOINT = "http://localstack:4566"
       JWT_SECRET        = "supersecretkey"
     }
   }
@@ -143,7 +143,7 @@ resource "aws_lambda_function" "list_images" {
   environment {
     variables = {
       IMAGES_TABLE      = aws_dynamodb_table.images.name
-      DYNAMODB_ENDPOINT = "http://localhost:4566"
+      DYNAMODB_ENDPOINT = "http://localstack:4566"
       JWT_SECRET        = "supersecretkey"
     }
   }
@@ -164,9 +164,9 @@ resource "aws_lambda_function" "get_image" {
   environment {
     variables = {
       IMAGES_TABLE      = aws_dynamodb_table.images.name
-      DYNAMODB_ENDPOINT = "http://localhost:4566"
+      DYNAMODB_ENDPOINT = "http://localstack:4566"
       S3_BUCKET         = aws_s3_bucket.raw_images.bucket
-      S3_ENDPOINT       = "http://localhost:4566"
+      S3_ENDPOINT       = "http://localstack:4566"
       JWT_SECRET        = "supersecretkey"
     }
   }
@@ -187,7 +187,7 @@ resource "aws_lambda_function" "processor" {
   environment {
     variables = {
       IMAGES_TABLE      = aws_dynamodb_table.images.name
-      DYNAMODB_ENDPOINT = "http://localhost:4566"
+      DYNAMODB_ENDPOINT = "http://localstack:4566"
       JWT_SECRET        = "supersecretkey"
     }
   }

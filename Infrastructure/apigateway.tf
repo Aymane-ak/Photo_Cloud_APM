@@ -252,3 +252,25 @@ resource "aws_lambda_permission" "allow_api_gateway_invoke" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.photo_cloud_api.execution_arn}/*/*"
 }
+
+#############################
+# Déploiement API Gateway
+#############################
+
+resource "aws_api_gateway_deployment" "deployment" {
+  depends_on = [
+    aws_api_gateway_integration.signup_integration,
+    aws_api_gateway_integration.login_integration,
+    aws_api_gateway_integration.logout_integration,
+    aws_api_gateway_integration.refresh_integration,
+    aws_api_gateway_integration.list_images_integration,
+    aws_api_gateway_integration.create_upload_integration,
+    aws_api_gateway_integration.confirm_upload_integration,
+    aws_api_gateway_integration.get_image_integration,
+    aws_api_gateway_integration.delete_image_integration,
+    aws_api_gateway_integration.update_image_integration
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.photo_cloud_api.id
+  stage_name  = "prod"
+}
